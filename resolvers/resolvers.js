@@ -52,7 +52,7 @@ module.exports = {
         //     }
         // },
         loginUser: async function (parent, { username, password }, { db, secret, secret2 }) {
-            return tryLogin(username, password, db, secret)
+            return tryLogin(username, password, db, secret, secret2)
         }
     }
 };

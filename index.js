@@ -2,9 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const db = require('./db');
-
-// >>>>>>>>> GRAPHQL TEST <<<<<<<<<<<< //
-
+const jwt = require('jsonwebtoken');
+const getUser = require('./Middleware/getUser');
 
 // THE BELOW IS FOR MULTIPLE FILES IN SCHEMA/ RESOLVERS FOLDER
 
@@ -32,17 +31,14 @@ const server = new ApolloServer({
         db,
         secret,
         secret2,
-        user: {
-            userId: '6656e2c6-7a4c-465a-a130-7a504cc7c2aa'
-        }
+        user: getUser()
     }
 });
 
 server.applyMiddleware({ app }); // app is from an existing express app
 
-// >>>>>>>>> GRAPHQL TEST <<<<<<<<<<<< //
-
 db.sequelize.sync();
 app.use(require('express').json());
 app.use(require('./Middleware/headers'));
+app.use(getUser)
 app.listen(process.env.PORT, () => console.log(`🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`));
