@@ -26,5 +26,8 @@
     "multer-s3": "^2.9.0",
     "pg": "^7.12.1",
     "sequelize": "^5.15.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.3.0"
   }
 }
