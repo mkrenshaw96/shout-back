@@ -1,58 +1,57 @@
 const { gql } = require('apollo-server-express');
 module.exports = gql`
-  # USERS
-  type User {
-    id: String!
-    name: String!
-    email: String!
-    username: String!
-    profilePicUrl: String
-    sessionToken: String!
-    # posts: [Post!]
-  }
+	# QUERYS
+	type Query {
+		getSingleUser(name: String!): User!
+		allUsers: [User!]
+		getAllPosts: [Post!]
+	}
 
-  # POSTS
-  type Post {
-    id: String!
-    text: String!
-    userId: String
-  }
+	# MUTATIONS
+	type Mutation {
+		createUser(name: String!, email: String!, username: String!, password: String!): RegisterResponse!
+		createPost(text: String!): PostResponse!
+		loginUser(username: String!, password: String!): LoginResponse!
+	}
 
-  # QUERYS
-  type Query {
-    # USERS
-    getSingleUser(name: String!): User!
-    allUsers: [User!]
+	# TYPE DEFINITIONS
+	type User {
+		id: String!
+		name: String!
+		email: String!
+		username: String!
+		profilePicUrl: String
+		sessionToken: String!
+	}
 
-    # POSTS
-    getAllPosts: [Post!]
-  }
+	type Post {
+		id: String!
+		text: String!
+		userId: String
+	}
 
-  type RegisterResponse {
-    ok: Boolean!
-    user: User
-    errors: [Error!]
-  }
+	type PostResponse {
+		ok: Boolean!
+		post: Post
+		errors: [Error!]
+	}
 
-  type LoginResponse {
-    ok: Boolean!
-    token: String
-    refreshToken: String
-    user: User
-    errors: [Error!]
-  }
+	type RegisterResponse {
+		ok: Boolean!
+		user: User
+		errors: [Error!]
+	}
 
-  type Error {
-    path: String!
-    message: String
-  }
+	type LoginResponse {
+		ok: Boolean!
+		token: String
+		refreshToken: String
+		user: User
+		errors: [Error!]
+	}
 
-  # MUTATIONS
-  type Mutation {
-    # USERS
-    createUser(name: String!, email: String!, username: String!, password: String!): RegisterResponse!
-    createPost(text: String!): Post!
-    loginUser(username: String!, password: String!): LoginResponse!
-  }
-
+	type Error {
+		path: String!
+		message: String
+	}
 `;

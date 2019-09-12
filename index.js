@@ -2,21 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const db = require('./db');
-
-// >>>>>>>>> GRAPHQL TEST <<<<<<<<<<<< //
-
-
-// THE BELOW IS FOR MULTIPLE FILES IN SCHEMA/ RESOLVERS FOLDER
-
-// const path = require('path');
-
-// THE UTILITY 
-
-// const { fileLoader, mergeTypes, mergeResolvers } = require('merge-graphql-schemas');
-// const types = fileLoader(path.join(__dirname, './schema'));
-// const res = fileLoader(path.join(__dirname, './resolvers'));
-// const typeDefs = mergeTypes(types, { all: true });
-// const resolvers = mergeTypes(res, { all: true });
+const jwt = require('jsonwebtoken');
+const { refreshTokens } = require('./auth');
+db.sequelize.sync();
 
 const { ApolloServer } = require('apollo-server-express');
 const typeDefs = require('./schema/typeDefs');
@@ -26,23 +14,42 @@ const secret = process.env.JWT_SECRET;
 const secret2 = process.env.JWT_SECRET2;
 
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: {
-        db,
-        secret,
-        secret2,
-        user: {
-            userId: '6656e2c6-7a4c-465a-a130-7a504cc7c2aa'
-        }
-    }
+	typeDefs,
+	resolvers,
+	context: ({ req, res }) => {
+		return {
+			db,
+			secret,
+			secret2,
+			req,
+			res
+		};
+	}
 });
 
-server.applyMiddleware({ app }); // app is from an existing express app
+async function addUser(req, res, next) {
+	const token = req.headers['x-token'];
+	if (token) {
+		try {
+			const { id } = await jwt.verify(token, secret);
+			req.user = id;
+		} catch (err) {
+			const refreshToken = req.headers['x-refresh-token'];
+			const newTokens = await refreshTokens(token, refreshToken, db, secret, secret2);
+			if (newTokens.token && newTokens.refreshToken) {
+				res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
+				res.set('x-token', newTokens.token);
+				res.set('x-refresh-token', newTokens.refreshToken);
+			}
+			req.user = newTokens.user;
+		}
+	}
+	next();
+}
 
-// >>>>>>>>> GRAPHQL TEST <<<<<<<<<<<< //
-
-db.sequelize.sync();
 app.use(require('express').json());
-app.use(require('./Middleware/headers'));
-app.listen(process.env.PORT, () => console.log(`🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`));
+app.use(addUser);
+server.applyMiddleware({ app }); // app is from an existing express app
+app.listen(process.env.PORT, () =>
+	console.log(`🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`)
+);
