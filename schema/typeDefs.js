@@ -1,6 +1,6 @@
 const { gql } = require('apollo-server-express');
 module.exports = gql`
-	#QUERYS
+	# QUERYS
 	type Query {
 		getSingleUser(name: String!): User!
 		allUsers: [User!]
@@ -14,6 +14,7 @@ module.exports = gql`
 		loginUser(username: String!, password: String!): LoginResponse!
 	}
 
+	# TYPE DEFINITIONS
 	type User {
 		id: String!
 		name: String!

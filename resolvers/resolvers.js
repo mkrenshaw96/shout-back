@@ -8,6 +8,7 @@ module.exports = {
 		getAllPosts: (parent, args, { db }) => db.POST.findAll()
 	},
 	Mutation: {
+		//CREATE A NEW USER AND ENCRYPT THE PASSWORD
 		createUser: async (parent, args, { db }) => {
 			try {
 				const user = await db.USER.create({ ...args, password: bcrypt.hashSync(args.password) });
@@ -22,6 +23,8 @@ module.exports = {
 				};
 			}
 		},
+
+		//CREATE A POST AND ADD THE USERS ID
 		createPost: async (parent, args, { db, req }) => {
 			try {
 				const post = await db.POST.create({ ...args, userId: req.user });
@@ -36,6 +39,8 @@ module.exports = {
 				};
 			}
 		},
+
+		//LOGIN A USER WITH USERNAME AND PASSWORD
 		loginUser: async function(parent, { username, password }, { db, secret, secret2 }) {
 			return tryLogin(username, password, db, secret, secret2);
 		}
