@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { tryLogin } = require('../auth');
-
+const requiresAuth = require('../permissions');
 module.exports = {
 	Query: {
 		getSingleUser: (parent, args, { db }) => db.USER.findOne({ where: args }),
@@ -25,7 +25,7 @@ module.exports = {
 		},
 
 		//CREATE A POST AND ADD THE USERS ID
-		createPost: async (parent, args, { db, req }) => {
+		createPost: requiresAuth.createResolver(async function(parent, args, { db, req }) {
 			try {
 				const post = await db.POST.create({ ...args, userId: req.user });
 				return {
@@ -38,7 +38,7 @@ module.exports = {
 					errors: err
 				};
 			}
-		},
+		}),
 
 		//LOGIN A USER WITH USERNAME AND PASSWORD
 		loginUser: async function(parent, { username, password }, { db, secret, secret2 }) {
