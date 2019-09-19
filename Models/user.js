@@ -14,10 +14,10 @@ module.exports = (Sequelize, DataTypes) => {
 			allowNull: false,
 			unique: true,
 			validate: {
-				isAlphanumeric: {
-					args: true,
-					msg: 'Username can only contain letters and numbers'
-				},
+				// isAlphanumeric: {
+				// 	args: true,
+				// 	msg: 'Username can only contain letters and numbers'
+				// },
 				len: {
 					args: [3, 15],
 					msg: 'Username must be 3-15 characters long.'
